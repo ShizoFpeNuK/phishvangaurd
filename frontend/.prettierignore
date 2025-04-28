@@ -1,0 +1,5 @@
+node_modules
+build
+*.lock
+vite.config.ts
+*.d.ts

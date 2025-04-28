@@ -1,0 +1,15 @@
+{
+	"manifest_version": 3,
+	"name": "PhishVanguard",
+	"version": "1.0.0",
+	"description": "This is a browser extension",
+	"action": {
+		"default_popup": "src/popup.html"
+	},
+	"background": {
+		"service_worker": "src/background.js"
+	},
+	"content_scripts": [],
+	"permissions": ["storage", "tabs", "activeTab"],
+	"icons": {}
+}
