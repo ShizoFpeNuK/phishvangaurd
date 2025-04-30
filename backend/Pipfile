@@ -1,0 +1,27 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[scripts]
+server = "uvicorn src.server:app"
+dev = "uvicorn src.server:app --reload"
+format = "black . --line-length 120 --exclude (datasets)"
+
+[packages]
+numpy = "*"
+joblib = "*"
+pandas = "*"
+scikit-learn = "*"
+requests = "*"
+beautifulsoup4 = "*"
+pydantic = "*"
+uvicorn = "*"
+fastapi = {extras = ["all"], version = "*"}
+python-whois = "*"
+
+[dev-packages]
+black = "*"
+
+[requires]
+python_version = "3.13"

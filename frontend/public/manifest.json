@@ -4,11 +4,17 @@
 	"version": "1.0.0",
 	"description": "This is a browser extension",
 	"action": {
-		"default_popup": "src/popup.html"
+		"default_popup": "client/popup.html"
 	},
 	"background": {
-		"service_worker": "src/background.js"
+		"service_worker": "client/background.js"
 	},
+	"web_accessible_resources": [
+		{
+			"resources": ["model/model.json"],
+			"matches": ["<all_urls>"]
+		}
+	],
 	"content_scripts": [],
 	"permissions": ["storage", "tabs", "activeTab"],
 	"icons": {}

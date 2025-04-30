@@ -4,21 +4,25 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "manifest": "node scripts/copy-manifest.js",
-    "build": "tsc -b && vite build && npm run manifest",
+    "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "format": "prettier --write \"src/**/*.{ts,tsx,css,html}\" \"scripts/**/*.{ts,js}\""
+    "format": "prettier --write \"./**/*.{ts,tsx,js,jsx,css,html}\"",
+    "generate-model": "tsx server/generate-model/light-model.ts"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.4",
+    "ml-array-mode": "^1.1.5",
+    "ml-random-forest": "^2.1.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "tailwindcss": "^4.1.4"
+    "tailwindcss": "^4.1.4",
+    "tldts": "^7.0.4"
   },
   "devDependencies": {
     "@eslint/js": "^9.22.0",
     "@types/chrome": "^0.0.317",
     "@types/node": "^22.15.3",
+    "@types/papaparse": "^5.3.15",
     "@types/react": "^19.0.10",
     "@types/react-dom": "^19.0.4",
     "@vitejs/plugin-react": "^4.3.4",
@@ -26,6 +30,7 @@
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.19",
     "globals": "^16.0.0",
+    "papaparse": "^5.5.2",
     "prettier": "^3.5.3",
     "typescript": "~5.7.2",
     "typescript-eslint": "^8.26.1",
