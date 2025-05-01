@@ -1,10 +1,10 @@
+import whois
 from typing import Any
 from urllib.parse import urlparse
-import whois
 from datetime import datetime
 
 from src.utils.parse_date import parse_dirty_date
-from src.modules.calc_risk.classes import PhishingReport
+from src.modules.calc_risk import PhishingReport
 from src.modules.module_domain.classes import FeatureDomainDict
 from src.modules.module_domain.constants import HIDDEN_KEYWORDS
 
@@ -114,7 +114,7 @@ def risk_calculation(features: FeatureDomainDict) -> int | float:
     return score
 
 
-def module_domain(url: str, report: PhishingReport | None = None) -> PhishingReport:
+def analyze(url: str, report: PhishingReport | None = None) -> PhishingReport:
     features = extract_features(url)
     score = risk_calculation(features)
 

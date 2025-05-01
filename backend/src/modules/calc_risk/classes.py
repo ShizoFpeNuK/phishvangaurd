@@ -1,4 +1,5 @@
 from typing import TypedDict
+from pydantic import BaseModel
 
 
 class RiskModulesDict(TypedDict):
@@ -7,18 +8,11 @@ class RiskModulesDict(TypedDict):
     ssl_risk: int | float
 
 
-class PhishingReport:
-    def __init__(
-        self,
-        url_risk: int | float = 0,
-        domain_risk: int | float = 0,
-        ssl_risk: int | float = 0,
-        visual_risk: int | float = 0,
-    ):
-        self.url_risk = url_risk
-        self.domain_risk = domain_risk
-        self.ssl_risk = ssl_risk
-        self.visual_risk = visual_risk
+class PhishingReport(BaseModel):
+    url_risk: float = 0
+    domain_risk: float = 0
+    ssl_risk: float = 0
+    visual_risk: float = 0
 
     def get_risk_scores(self):
         return (self.url_risk, self.domain_risk, self.ssl_risk, self.visual_risk)

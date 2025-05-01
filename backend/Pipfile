@@ -5,7 +5,7 @@ name = "pypi"
 
 [scripts]
 server = "uvicorn src.server:app"
-dev = "uvicorn src.server:app --reload"
+dev = "uvicorn src.main:app --reload"
 format = "black . --line-length 120 --exclude (datasets)"
 
 [packages]
@@ -19,6 +19,7 @@ pydantic = "*"
 uvicorn = "*"
 fastapi = {extras = ["all"], version = "*"}
 python-whois = "*"
+cryptography = "*"
 
 [dev-packages]
 black = "*"
