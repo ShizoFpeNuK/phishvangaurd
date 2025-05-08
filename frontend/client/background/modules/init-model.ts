@@ -1,6 +1,7 @@
-import { IAnalyzeUrlResult } from '@/settings/global-types';
+import type { GlobalTypes } from '@/settings/global-types';
 import { RandomForestClassifier } from 'ml-random-forest';
 import { extractFeaturesUrl } from 'utils';
+import { BackgroundUtils } from '@/background/modules/utils';
 
 export const initModel = async () => {
 	const res = await fetch(chrome.runtime.getURL('model/model_rf.json'));
@@ -15,7 +16,9 @@ export const initModel = async () => {
 		const tab = await chrome.tabs.get(tabId);
 		const url = tab.url;
 
-		console.log('Analyze');
+		if (!url || BackgroundUtils.isIgnoredUrl(url)) {
+			return;
+		}
 
 		if (!url) return;
 
@@ -23,7 +26,7 @@ export const initModel = async () => {
 		const prediction = model.predict([features])[0];
 		const probability = model.predictProbability([features], 1)[0];
 
-		chrome.storage.local.set<IAnalyzeUrlResult>({
+		chrome.storage.local.set<GlobalTypes.IAnalyzeUrlResult>({
 			phishingResult: {
 				url,
 				prediction,

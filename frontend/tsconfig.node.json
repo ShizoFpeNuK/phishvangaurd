@@ -21,8 +21,9 @@
 
 		"baseUrl": ".",
 		"paths": {
-			"#/*": ["server/*"],
+			"#/*": ["server/*"]
 		}
 	},
-	"include": ["vite.config.ts", "scripts", "server"]
+	"include": ["vite.config.ts", "scripts", "server"],
+	"exclude": ["build"]
 }

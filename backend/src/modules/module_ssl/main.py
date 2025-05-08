@@ -1,8 +1,9 @@
 import ssl
 import pytz
-from urllib.parse import urlparse
+import socket
 from datetime import datetime
 from cryptography import x509
+from urllib.parse import urlparse
 from cryptography.hazmat.backends import default_backend
 
 from src.modules.calc_risk import NUM_IS_PHISHING, PhishingReport
@@ -11,8 +12,11 @@ from src.modules.module_ssl.classes import CertificateDict, FeatureSslDict
 
 def get_certificate(domain: str) -> CertificateDict | None:
     try:
-        cert = ssl.get_server_certificate((domain, 443))
-        cert = x509.load_pem_x509_certificate(cert.encode(), default_backend())
+        context = ssl.create_default_context()
+        with socket.create_connection((domain, 443), timeout=5) as sock:
+            with context.wrap_socket(sock, server_hostname=domain) as ssock:
+                der_cert = ssock.getpeercert(binary_form=True)
+                cert = x509.load_der_x509_certificate(der_cert, default_backend())
     except Exception as e:
         print(f"Ошибка при проверке SSL сертификата: {e}")
         return None
@@ -29,7 +33,7 @@ def get_certificate(domain: str) -> CertificateDict | None:
     return cert_info
 
 
-# Что делать, если нет сертификата?..
+# TODO: Код падает, когда нет сертификата
 def extract_features(url: str) -> FeatureSslDict:
     domain = urlparse(url).netloc
     cert = get_certificate(domain)
@@ -40,7 +44,7 @@ def extract_features(url: str) -> FeatureSslDict:
             domain.lower() in cert["domain_cert"].lower() or (cert["domain_cert"].lower() in domain.lower())
         ),
         "expired": datetime.now(pytz.utc) > cert["not_after"],
-        "short_dated": (cert["not_after"] - cert["not_before"]).days,
+        "short_dated": (cert["not_after"] - cert["not_before"]).days < 30,
         # Для простоты, считаем DV сертификат простым сертификатом с отсутствием расширений или SAN
         "dv_type": len(cert["extensions"]) == 0,
     }

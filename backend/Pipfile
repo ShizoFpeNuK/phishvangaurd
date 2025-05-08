@@ -20,6 +20,10 @@ uvicorn = "*"
 fastapi = {extras = ["all"], version = "*"}
 python-whois = "*"
 cryptography = "*"
+selenium = "*"
+webdriver-manager = "*"
+opencv-python = "*"
+skimage = "*"
 
 [dev-packages]
 black = "*"

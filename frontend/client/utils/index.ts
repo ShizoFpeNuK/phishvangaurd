@@ -1,1 +1,0 @@
-export { getThreatLevel } from './threatLevel';

@@ -1,5 +1,5 @@
-import { THREAT_LEVEL } from '@/settings/global-types';
+import { GlobalTypes } from '@/settings/global-types';
 
 export interface IPhishingWarning {
-	level: THREAT_LEVEL;
+	level: GlobalTypes.ThreatLevel;
 }

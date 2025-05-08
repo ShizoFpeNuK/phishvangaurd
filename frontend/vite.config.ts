@@ -3,9 +3,7 @@ import react from '@vitejs/plugin-react';
 import path from 'node:path';
 
 export default defineConfig({
-	plugins: [
-		react(),
-	],
+	plugins: [react()],
 	resolve: {
 		alias: {
 			'@': path.resolve(__dirname, 'client'),
@@ -21,8 +19,8 @@ export default defineConfig({
 			},
 			output: {
 				entryFileNames: 'client/[name].js',
-				chunkFileNames: 'chunks/[name]-[hash].js',
-				assetFileNames: 'assets/[name]-[hash][extname]',
+				chunkFileNames: undefined,
+				assetFileNames: undefined,
 			},
 		},
 		outDir: 'build',

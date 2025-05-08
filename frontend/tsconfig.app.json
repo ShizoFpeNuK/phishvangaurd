@@ -24,8 +24,9 @@
 
 		"baseUrl": ".",
 		"paths": {
-			"@/*": ["client/*"],
+			"@/*": ["client/*"]
 		}
 	},
-	"include": ["client", "utils"]
+	"include": ["client", "utils"],
+	"exclude": ["build"]
 }
