@@ -1,20 +1,17 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-namespace */
 export namespace ChromeTypes {
 	// !Пока что не используется 'check-url'
-	export const MESSAGE_TYPE = [
-		'add-url',
-		'check-url',
-		'result-url',
-		'get-url',
-		'ui-ready',
-	] as const;
-
-	export type MessageType = (typeof MESSAGE_TYPE)[number];
+	const MESSAGE_TYPE = ['add-url', 'check-url', 'result-url', 'get-url', 'ui-ready'] as const;
+	export type TMessageType = (typeof MESSAGE_TYPE)[number];
 
 	export interface IMessage<T> {
-		type: MessageType;
+		type: TMessageType;
 		body: T | null;
 	}
+
+	const ALARM_TYPE = ['clear-db'] as const;
+	export type TAlarmType = (typeof ALARM_TYPE)[number];
 
 	export interface ChromeMessageListener<T, K = T> {
 		message: ChromeTypes.IMessage<T>;

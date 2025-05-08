@@ -5,24 +5,22 @@ import { ChromeApi, ServerApi } from '@/background/utils';
 
 export const initListeners = () => {
 	// TODO: Добавить синхронизацию с серверной БД
-	// TODO: Пока не будет происходить загрузка, не будет отправлено на сервер (что-то типа кэширования)
-	// TODO: Переписать на chrome.tabs.onActivated.addListener (init-model)
-	// TODO: Добавить удаление старых записей
-	chrome.tabs.onUpdated.addListener(async (_, changeInfo, tab) => {
-		if (!tab.url || BackgroundUtils.isIgnoredUrl(tab.url)) {
+	chrome.tabs.onActivated.addListener(async ({ tabId }) => {
+		const tab = await chrome.tabs.get(tabId);
+		const url = tab.url;
+
+		if (!url || BackgroundUtils.isIgnoredUrl(url)) {
 			return;
 		}
 
-		if (tab.url && changeInfo.status === 'complete') {
-			const urlDB = await DB.getAnalyzeByUrl(tab.url);
+		const urlDB = await DB.getAnalyzeByUrl(url);
 
-			if (urlDB) return;
+		if (urlDB) return;
 
-			const data = await ServerApi.analyzeUrl(tab.url);
-			DB.addUrl(data);
+		const data = await ServerApi.analyzeUrl(url);
+		DB.addUrl(data);
 
-			console.log('Ответ от сервера:', data);
-		}
+		console.log('Ответ от сервера:', data);
 	});
 
 	ChromeApi.messageAddListener<ChromeTypes.IMessageUrl, ChromeTypes.IMessageAnalyze>(

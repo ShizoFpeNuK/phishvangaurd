@@ -11,7 +11,6 @@ export const initModel = async () => {
 	console.log('initModel');
 
 	// TODO: Добавить кэширование
-	// TODO: Надо игнорировать новый таб
 	chrome.tabs.onActivated.addListener(async ({ tabId }) => {
 		const tab = await chrome.tabs.get(tabId);
 		const url = tab.url;
@@ -19,8 +18,6 @@ export const initModel = async () => {
 		if (!url || BackgroundUtils.isIgnoredUrl(url)) {
 			return;
 		}
-
-		if (!url) return;
 
 		const features = extractFeaturesUrl(url);
 		const prediction = model.predict([features])[0];

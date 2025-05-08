@@ -5,8 +5,6 @@ import { usePhishingInfo } from '@/popup/hooks/usePhishingInfo';
 const Popup: FC = () => {
 	const [url, threatLevel, serverThreatLevel] = usePhishingInfo();
 
-	console.log('Popup:', url);
-
 	return (
 		<div className="p-4 w-64">
 			<h1 className="text-lg font-bold mb-2">PhishVanguard</h1>

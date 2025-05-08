@@ -16,6 +16,6 @@
 		}
 	],
 	"content_scripts": [],
-	"permissions": ["storage", "tabs", "activeTab"],
+	"permissions": ["storage", "tabs", "activeTab", "alarms"],
 	"icons": {}
 }

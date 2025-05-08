@@ -34,7 +34,7 @@ async def analyze(req: URLRequest):
                     type="phishing",
                     source="server",
                     risk_score=risk_score,
-                    checked_at=int(datetime.now(timezone.utc).timestamp()),
+                    checked_at=int(datetime.now().timestamp() * 1000),
                 )
         except Exception as e:
             print(f"[!] Ошибка в плагине {name}: {e}")
@@ -45,5 +45,5 @@ async def analyze(req: URLRequest):
         type="phishing",
         source="server",
         risk_score=risk_score,
-        checked_at=int(datetime.now(timezone.utc).timestamp()),
+        checked_at=int(datetime.now(timezone.utc).timestamp() * 1000),
     )
