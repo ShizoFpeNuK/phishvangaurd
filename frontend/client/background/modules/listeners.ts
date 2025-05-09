@@ -1,9 +1,11 @@
-import type { ChromeTypes } from '@/background/utils';
+import { ServerApi } from '@/background/utils';
+import { ChromeTypes } from '@/background/types';
 import { BackgroundUtils } from '@/background/modules/utils';
 import { Extension_DB as DB } from '@/background/modules';
-import { ChromeApi, ServerApi } from '@/background/utils';
 
 export const initListeners = () => {
+	const portUrlMap = new Map<chrome.runtime.Port, string>();
+
 	// TODO: Добавить синхронизацию с серверной БД
 	chrome.tabs.onActivated.addListener(async ({ tabId }) => {
 		const tab = await chrome.tabs.get(tabId);
@@ -14,31 +16,39 @@ export const initListeners = () => {
 		}
 
 		const urlDB = await DB.getAnalyzeByUrl(url);
-
 		if (urlDB) return;
 
 		const data = await ServerApi.analyzeUrl(url);
 		DB.addUrl(data);
 
 		console.log('Ответ от сервера:', data);
+
+		for (const [port, storedUrl] of portUrlMap.entries()) {
+			if (storedUrl === url) {
+				port.postMessage({ type: 'get-url', body: data });
+			}
+		}
 	});
 
-	ChromeApi.messageAddListener<ChromeTypes.IMessageUrl, ChromeTypes.IMessageAnalyze>(
-		({ message: msg, sendResponse }) => {
+	chrome.runtime.onConnect.addListener((port) => {
+		if (port.name !== ChromeTypes.PortNames.POPUP) return;
+
+		port.onMessage.addListener(async (msg: ChromeTypes.IMessage<ChromeTypes.IMessageUrl>) => {
 			if (!msg.body || BackgroundUtils.isIgnoredUrl(msg.body.url)) {
-				return true;
+				port.postMessage({ type: 'get-url', body: null });
+				return;
 			}
 
-			if (msg.type === 'ui-ready' && msg.body) {
-				DB.getAnalyzeByUrl(msg.body.url).then((data) => {
-					console.log('From DB', data);
-					sendResponse({ type: 'get-url', body: data ?? null });
-					return true;
-				});
-			} else {
-				sendResponse({ type: 'get-url', body: null });
-				return true;
+			if (msg.type === 'ui-ready') {
+				portUrlMap.set(port, msg.body.url);
+
+				const data = await DB.getAnalyzeByUrl(msg.body.url);
+				port.postMessage({ type: 'get-url', body: data ?? null });
 			}
-		},
-	);
+		});
+
+		port.onDisconnect.addListener(() => {
+			portUrlMap.delete(port);
+		});
+	});
 };

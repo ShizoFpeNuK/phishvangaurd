@@ -1,7 +1,7 @@
-import type { GlobalTypes } from '@/settings/global-types';
-import { RandomForestClassifier } from 'ml-random-forest';
-import { extractFeaturesUrl } from 'utils';
+import { GlobalTypes } from '@/background/types';
 import { BackgroundUtils } from '@/background/modules/utils';
+import { extractFeaturesUrl } from 'utils';
+import { RandomForestClassifier } from 'ml-random-forest';
 
 export const initModel = async () => {
 	const res = await fetch(chrome.runtime.getURL('model/model_rf.json'));
@@ -16,6 +16,7 @@ export const initModel = async () => {
 		const url = tab.url;
 
 		if (!url || BackgroundUtils.isIgnoredUrl(url)) {
+			chrome.storage.local.remove(GlobalTypes.ListStorage.PHISHING_RESULT as string);
 			return;
 		}
 

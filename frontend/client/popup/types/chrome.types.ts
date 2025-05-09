@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-namespace */
 export namespace ChromeTypes {
+	/*============== MESSAGE ==============*/
 	// !Пока что не используется 'check-url'
 	const MESSAGE_TYPE = ['add-url', 'check-url', 'result-url', 'get-url', 'ui-ready'] as const;
 	export type TMessageType = (typeof MESSAGE_TYPE)[number];
@@ -8,15 +9,6 @@ export namespace ChromeTypes {
 	export interface IMessage<T> {
 		type: TMessageType;
 		body: T | null;
-	}
-
-	const ALARM_TYPE = ['clear-db'] as const;
-	export type TAlarmType = (typeof ALARM_TYPE)[number];
-
-	export interface ChromeMessageListener<T, K = T> {
-		message: ChromeTypes.IMessage<T>;
-		sender: chrome.runtime.MessageSender;
-		sendResponse: (response?: ChromeTypes.IMessage<K>) => void;
 	}
 
 	export interface IMessageAnalyze {
@@ -28,5 +20,10 @@ export namespace ChromeTypes {
 
 	export interface IMessageUrl {
 		url: string;
+	}
+
+	/*============== PORT ==============*/
+	export const enum PortNames {
+		POPUP = 'popup',
 	}
 }

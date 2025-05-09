@@ -1,4 +1,4 @@
-import { GlobalTypes } from '@/settings/global-types';
+import { GlobalTypes } from '@/popup/types';
 
 export const getThreatLevel = (probability: number): GlobalTypes.ThreatLevel => {
 	if (probability < 0.3) {

@@ -1,4 +1,4 @@
-import { GlobalTypes } from '@/settings/global-types';
+import { GlobalTypes } from '@/popup/types';
 
 export const ThreatLevelText = {
 	[GlobalTypes.ThreatLevel.UNKNOWN]: '🔄 Идёт анализ...',

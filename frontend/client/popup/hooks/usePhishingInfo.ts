@@ -1,7 +1,6 @@
-import type { ChromeTypes } from '@/popup/utils';
-import { GlobalTypes } from '@/settings/global-types';
 import { getThreatLevel } from '@/popup/utils';
 import { useEffect, useState } from 'react';
+import { GlobalTypes, ChromeTypes } from '@/popup/types';
 
 export const usePhishingInfo = (): [string, GlobalTypes.ThreatLevel, GlobalTypes.ThreatLevel] => {
 	const [url, setUrl] = useState<string>('');
@@ -9,6 +8,8 @@ export const usePhishingInfo = (): [string, GlobalTypes.ThreatLevel, GlobalTypes
 	const [serverThreatLevel, setServerThreatLevel] = useState(GlobalTypes.ThreatLevel.UNKNOWN);
 
 	useEffect(() => {
+		const port = chrome.runtime.connect({ name: ChromeTypes.PortNames.POPUP });
+
 		chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
 			const url = tabs[0]?.url || '';
 			setUrl(url);
@@ -20,13 +21,18 @@ export const usePhishingInfo = (): [string, GlobalTypes.ThreatLevel, GlobalTypes
 				},
 			);
 
-			chrome.runtime.sendMessage<ChromeTypes.IMessage<ChromeTypes.IMessageUrl>>(
-				{ type: 'ui-ready', body: { url } },
-				(data) => {
-					setServerThreatLevel(getThreatLevel(data.body.risk_score));
-				},
-			);
+			port.postMessage({ type: 'ui-ready', body: { url } });
 		});
+
+		port.onMessage.addListener((msg: ChromeTypes.IMessage<ChromeTypes.IMessageAnalyze>) => {
+			if (msg.body && msg.type === 'get-url') {
+				setServerThreatLevel(getThreatLevel(msg.body.risk_score));
+			}
+		});
+
+		return () => {
+			port.disconnect();
+		};
 	}, []);
 
 	return [url, threatLevel, serverThreatLevel];
