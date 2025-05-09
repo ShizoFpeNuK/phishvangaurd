@@ -1,5 +1,5 @@
 import { ServerApi } from '@/background/utils';
-import { ChromeTypes } from '@/background/types';
+import { ChromeTypes } from '@/settings';
 import { BackgroundUtils } from '@/background/modules/utils';
 import { Extension_DB as DB } from '@/background/modules';
 

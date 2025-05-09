@@ -1,5 +1,5 @@
 import react from '@vitejs/plugin-react';
-import { resolve } from 'node:path';
+import { resolve } from 'path';
 import { defineConfig } from 'vite';
 
 export default defineConfig({
@@ -13,16 +13,16 @@ export default defineConfig({
 	},
 	build: {
 		rollupOptions: {
-			input: resolve(__dirname, 'client/popup.html'),
+			input: resolve(__dirname, 'client/background/background.ts'),
 			output: {
-				entryFileNames: 'client/popup.js',
+				entryFileNames: 'client/background.js',
 				manualChunks: undefined,
-        inlineDynamicImports: true,
+				inlineDynamicImports: true,
 			},
 		},
 		outDir: 'build',
-		emptyOutDir: true,
-		copyPublicDir: true,
+		emptyOutDir: false,
 		sourcemap: false,
+		minify: true,
 	},
 });

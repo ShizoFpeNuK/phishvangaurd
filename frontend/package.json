@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "build": "tsc -b && vite build",
+    "build": "tsc -b && vite build && vite build --config vite.config.content.ts && vite build --config vite.config.background.ts",
     "lint": "eslint .",
     "format": "prettier --write \"./**/*.{ts,tsx,js,jsx,css,html}\"",
     "generate-model": "tsx server/generate-model/light-model.ts"

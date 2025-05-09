@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-namespace */
+
 export namespace ChromeTypes {
 	/*============== MESSAGE ==============*/
 	// !Пока что не используется 'check-url'
@@ -20,6 +21,11 @@ export namespace ChromeTypes {
 
 	export interface IMessageUrl {
 		url: string;
+	}
+
+	/*============== ALARM ==============*/
+	export const enum AlarmNames {
+		CLEAR_DB = 'clear-db',
 	}
 
 	/*============== PORT ==============*/

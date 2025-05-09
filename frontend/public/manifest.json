@@ -15,7 +15,13 @@
 			"matches": ["<all_urls>"]
 		}
 	],
-	"content_scripts": [],
+	"content_scripts": [
+		{
+			"matches": ["<all_urls>"],
+			"js": ["client/content.js"],
+			"run_at": "document_idle"
+		}
+	],
 	"permissions": ["storage", "tabs", "activeTab", "alarms"],
 	"icons": {}
 }

@@ -1,4 +1,4 @@
-import { GlobalTypes } from '@/background/types';
+import { GlobalTypes } from '@/settings';
 import { BackgroundUtils } from '@/background/modules/utils';
 import { extractFeaturesUrl } from 'utils';
 import { RandomForestClassifier } from 'ml-random-forest';

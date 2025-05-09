@@ -1,4 +1,4 @@
-import type { GlobalTypes } from '@/popup/types';
+import { GlobalTypes } from '@/settings';
 
 export interface IPhishingWarning {
 	level: GlobalTypes.ThreatLevel;

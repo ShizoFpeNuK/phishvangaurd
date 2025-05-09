@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-namespace */
+
 export namespace GlobalTypes {
 	/* ============ STORAGE ============ */
 	export const enum ListStorage {
