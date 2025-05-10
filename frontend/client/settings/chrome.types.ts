@@ -4,7 +4,14 @@
 export namespace ChromeTypes {
 	/*============== MESSAGE ==============*/
 	// !Пока что не используется 'check-url'
-	const MESSAGE_TYPE = ['add-url', 'check-url', 'result-url', 'get-url', 'ui-ready'] as const;
+	const MESSAGE_TYPE = [
+		'add-url',
+		'check-url',
+		'result-url',
+		'get-url',
+		'ui-ready',
+		'content-ready',
+	] as const;
 	export type TMessageType = (typeof MESSAGE_TYPE)[number];
 
 	export interface IMessage<T> {

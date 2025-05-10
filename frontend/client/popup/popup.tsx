@@ -1,5 +1,5 @@
 import type { FC } from 'react';
-import { PhishingWarning } from '@/components';
+import { PhishingWarning } from '@/popup/components';
 import { usePhishingInfo } from '@/popup/hooks/usePhishingInfo';
 
 const Popup: FC = () => {

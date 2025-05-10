@@ -1,6 +1,5 @@
 import { getThreatLevel } from '@/popup/utils';
 import { useEffect, useState } from 'react';
-// import { GlobalTypes, ChromeTypes } from '@/popup/types';
 import { GlobalTypes, ChromeTypes } from '@/settings';
 
 export const usePhishingInfo = (): [string, GlobalTypes.ThreatLevel, GlobalTypes.ThreatLevel] => {

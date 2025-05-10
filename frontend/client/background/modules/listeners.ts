@@ -51,4 +51,19 @@ export const initListeners = () => {
 			portUrlMap.delete(port);
 		});
 	});
+
+	chrome.runtime.onMessage.addListener(
+		(msg: ChromeTypes.IMessage<ChromeTypes.IMessageUrl>, sender) => {
+			if (msg.type === 'content-ready') {
+				const tabId = sender.tab?.id;
+				const url = sender.tab?.url;
+				if (!tabId || !url) return;
+
+				chrome.tabs.sendMessage(tabId, {
+					type: 'get-url' as ChromeTypes.TMessageType,
+					body: { url },
+				});
+			}
+		},
+	);
 };

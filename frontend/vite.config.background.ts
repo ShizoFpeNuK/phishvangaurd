@@ -1,5 +1,5 @@
 import react from '@vitejs/plugin-react';
-import { resolve } from 'path';
+import { resolve } from 'node:path';
 import { defineConfig } from 'vite';
 
 export default defineConfig({
@@ -22,7 +22,7 @@ export default defineConfig({
 		},
 		outDir: 'build',
 		emptyOutDir: false,
+		copyPublicDir: false,
 		sourcemap: false,
-		minify: true,
 	},
 });

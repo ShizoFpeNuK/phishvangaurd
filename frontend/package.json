@@ -10,12 +10,10 @@
     "generate-model": "tsx server/generate-model/light-model.ts"
   },
   "dependencies": {
-    "@tailwindcss/vite": "^4.1.4",
     "idb": "^8.0.2",
     "ml-random-forest": "^2.1.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "tailwindcss": "^4.1.4",
     "tldts": "^7.0.4"
   },
   "devDependencies": {
