@@ -27,23 +27,19 @@ async def analyze(req: URLRequest):
             report = plugin.analyze(req.url, report)
             risk_score = get_risk(report)
 
-            # TODO: Переделать
             if risk_score > 0.8:
                 return ServerReport(
                     url=req.url,
-                    type="phishing",
-                    source="server",
                     risk_score=risk_score,
+                    report=report,
                     checked_at=int(datetime.now().timestamp() * 1000),
                 )
         except Exception as e:
             print(f"[!] Ошибка в плагине {name}: {e}")
 
-    # TODO: Переделать
     return ServerReport(
         url=req.url,
-        type="phishing",
-        source="server",
         risk_score=risk_score,
+        report=report,
         checked_at=int(datetime.now(timezone.utc).timestamp() * 1000),
     )

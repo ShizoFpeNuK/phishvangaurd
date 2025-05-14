@@ -1,5 +1,4 @@
-import { clearIntervalDB, initListeners, initModel } from '@/background/modules';
+import { clearIntervalDB, initListeners } from '@/background/modules';
 
-initModel();
 initListeners();
 clearIntervalDB();

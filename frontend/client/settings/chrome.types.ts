@@ -3,15 +3,7 @@
 
 export namespace ChromeTypes {
 	/*============== MESSAGE ==============*/
-	// !Пока что не используется 'check-url'
-	const MESSAGE_TYPE = [
-		'add-url',
-		'check-url',
-		'result-url',
-		'get-url',
-		'ui-ready',
-		'content-ready',
-	] as const;
+	const MESSAGE_TYPE = ['get-url', 'ui-ready', 'content-ready', 'check-url'] as const;
 	export type TMessageType = (typeof MESSAGE_TYPE)[number];
 
 	export interface IMessage<T> {
@@ -19,11 +11,29 @@ export namespace ChromeTypes {
 		body: T | null;
 	}
 
+	interface PhishingServerReport {
+		url_risk: number;
+		domain_risk: number;
+		ssl_risk: number;
+		visual_risk: number;
+	}
+
+	interface PhishingLocalReport {
+		url_risk: number;
+	}
+
 	export interface IMessageAnalyze {
 		url: string;
-		type: 'phishing' | 'safe' | 'unknown';
-		risk_score: number;
-		checked_at: number;
+		server?: {
+			risk_score: number;
+			checked_at: number;
+			report: PhishingServerReport;
+		};
+		local?: {
+			risk_score: number;
+			checked_at: number;
+			report: PhishingLocalReport;
+		};
 	}
 
 	export interface IMessageUrl {

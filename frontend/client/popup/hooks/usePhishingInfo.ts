@@ -1,4 +1,4 @@
-import { getThreatLevel } from '@/popup/utils';
+import { getThreatLevel } from '@/utils';
 import { useEffect, useState } from 'react';
 import { GlobalTypes, ChromeTypes } from '@/settings';
 
@@ -14,19 +14,13 @@ export const usePhishingInfo = (): [string, GlobalTypes.ThreatLevel, GlobalTypes
 			const url = tabs[0]?.url || '';
 			setUrl(url);
 
-			chrome.storage.local.get<GlobalTypes.IAnalyzeUrlResult>(
-				GlobalTypes.ListStorage.PHISHING_RESULT,
-				({ phishingResult: { probability } }) => {
-					setThreatLevel(getThreatLevel(probability));
-				},
-			);
-
 			port.postMessage({ type: 'ui-ready', body: { url } });
 		});
 
 		port.onMessage.addListener((msg: ChromeTypes.IMessage<ChromeTypes.IMessageAnalyze>) => {
 			if (msg.body && msg.type === 'get-url') {
-				setServerThreatLevel(getThreatLevel(msg.body.risk_score));
+				setThreatLevel(getThreatLevel(msg.body.local?.risk_score ?? -1));
+				setServerThreatLevel(getThreatLevel(msg.body.server?.risk_score ?? -1));
 			}
 		});
 

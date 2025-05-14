@@ -2,31 +2,84 @@ import { ServerApi } from '@/background/utils';
 import { ChromeTypes } from '@/settings';
 import { BackgroundUtils } from '@/background/modules/utils';
 import { Extension_DB as DB } from '@/background/modules';
+import { extractFeaturesUrl } from 'utils';
+import { RandomForestClassifier } from 'ml-random-forest';
 
-export const initListeners = () => {
+export const initListeners = async () => {
+	const res = await fetch(chrome.runtime.getURL('model/model_rf.json'));
+	const json = await res.json();
+	const model = RandomForestClassifier.load(json);
+	console.log('initModel');
+
 	const portUrlMap = new Map<chrome.runtime.Port, string>();
+	const contentTabs = new Map<number, boolean>();
 
-	// TODO: Добавить синхронизацию с серверной БД
-	chrome.tabs.onActivated.addListener(async ({ tabId }) => {
+	const analyzeTab = async (tabId: number) => {
 		const tab = await chrome.tabs.get(tabId);
 		const url = tab.url;
+		if (!url || BackgroundUtils.isIgnoredUrl(url)) return;
 
-		if (!url || BackgroundUtils.isIgnoredUrl(url)) {
-			return;
+		let existingDB = await DB.getAnalyzeByUrl(url);
+
+		if (!existingDB?.local) {
+			const features = extractFeaturesUrl(url);
+			const probability = model.predictProbability([features], 1)[0];
+
+			existingDB = {
+				...existingDB,
+				url,
+				local: {
+					checked_at: Date.now(),
+					risk_score: probability,
+					report: { url_risk: probability },
+				},
+			};
+
+			DB.addAnalyze(existingDB);
+
+			for (const [port, storedUrl] of portUrlMap) {
+				if (storedUrl === url) {
+					port.postMessage({ type: 'get-url', body: existingDB });
+				}
+			}
 		}
 
-		const urlDB = await DB.getAnalyzeByUrl(url);
-		if (urlDB) return;
+		if (!existingDB?.server) {
+			const data = await ServerApi.analyzeUrl(url);
 
-		const data = await ServerApi.analyzeUrl(url);
-		DB.addUrl(data);
+			existingDB = {
+				...existingDB,
+				url,
+				server: {
+					risk_score: data.risk_score,
+					report: data.report,
+					checked_at: data.checked_at,
+				},
+			};
 
-		console.log('Ответ от сервера:', data);
+			DB.addAnalyze(existingDB);
 
-		for (const [port, storedUrl] of portUrlMap.entries()) {
-			if (storedUrl === url) {
-				port.postMessage({ type: 'get-url', body: data });
+			for (const [port, storedUrl] of portUrlMap) {
+				if (storedUrl === url) {
+					port.postMessage({ type: 'get-url', body: existingDB });
+				}
 			}
+		}
+
+		if (contentTabs.get(tabId)) {
+			chrome.tabs.sendMessage(tabId, {
+				type: 'get-url',
+				body: existingDB,
+			});
+		}
+	};
+
+	chrome.tabs.onActivated.addListener(async ({ tabId }) => {
+		analyzeTab(tabId);
+
+		// Сброс состояния всех остальных вкладок
+		for (const id of contentTabs.keys()) {
+			if (id !== tabId) contentTabs.delete(id);
 		}
 	});
 
@@ -40,10 +93,13 @@ export const initListeners = () => {
 			}
 
 			if (msg.type === 'ui-ready') {
-				portUrlMap.set(port, msg.body.url);
-
 				const data = await DB.getAnalyzeByUrl(msg.body.url);
-				port.postMessage({ type: 'get-url', body: data ?? null });
+
+				if (!data) {
+					portUrlMap.set(port, msg.body.url);
+				} else {
+					port.postMessage({ type: 'get-url', body: data ?? null });
+				}
 			}
 		});
 
@@ -53,16 +109,27 @@ export const initListeners = () => {
 	});
 
 	chrome.runtime.onMessage.addListener(
-		(msg: ChromeTypes.IMessage<ChromeTypes.IMessageUrl>, sender) => {
+		async (msg: ChromeTypes.IMessage<ChromeTypes.IMessageUrl>, sender) => {
 			if (msg.type === 'content-ready') {
 				const tabId = sender.tab?.id;
 				const url = sender.tab?.url;
 				if (!tabId || !url) return;
 
-				chrome.tabs.sendMessage(tabId, {
-					type: 'get-url' as ChromeTypes.TMessageType,
-					body: { url },
+				contentTabs.set(tabId, true);
+
+				DB.getAnalyzeByUrl(url || '').then((data) => {
+					if (data) {
+						chrome.tabs.sendMessage(tabId, {
+							type: 'get-url',
+							body: data,
+						});
+					}
 				});
+
+				// chrome.tabs.sendMessage(tabId, {
+				// 	type: 'get-url' as ChromeTypes.TMessageType,
+				// 	body: { url },
+				// });
 			}
 		},
 	);
