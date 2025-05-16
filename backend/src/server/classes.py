@@ -8,7 +8,6 @@ class URLRequest(BaseModel):
     url: str
 
 
-# TODO: Скорректировать
 class ServerReport(BaseModel):
     url: str
     risk_score: float

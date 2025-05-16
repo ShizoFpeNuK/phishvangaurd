@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import Papa from 'papaparse';
 import { RandomForestClassifier } from 'ml-random-forest';
-import { extractFeaturesUrl } from 'utils';
+import { extractFeaturesUrl } from '../../utils';
 
 const csvText = fs.readFileSync('server/datasets/phishing_url.csv', 'utf8');
 const parsed = Papa.parse(csvText, { header: true });
@@ -21,7 +21,7 @@ parsed.data.forEach((row: any) => {
 });
 
 const rf = new RandomForestClassifier({
-	seed: 10,
+	seed: 6,
 	nEstimators: 30,
 	maxFeatures: 0.8,
 	replacement: true,
@@ -34,6 +34,6 @@ rf.train(data, labels);
 console.log('Закончили обучение модели...');
 
 const modelJSON = rf.toJSON();
-fs.writeFileSync('public/model/model_rf.json', JSON.stringify(modelJSON, null, 2));
+fs.writeFileSync('public/model2/model_rf.json', JSON.stringify(modelJSON, null, 2));
 
 console.log('Модель успешно обучена и сохранена!');

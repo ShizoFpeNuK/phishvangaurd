@@ -14,12 +14,6 @@ export const mountContent = () => {
 	reactRoot.id = 'root';
 	shadow.appendChild(reactRoot);
 
-	const link = document.createElement('link');
-	link.href =
-		'https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap';
-	link.rel = 'stylesheet';
-	shadow.appendChild(link);
-
 	const styleEl = document.createElement('style');
 	styleEl.textContent = cssText;
 	shadow.appendChild(styleEl);

@@ -1,9 +1,8 @@
 import { GlobalTypes } from '@/settings';
 
-export const ThreatLevelText = {
+export const THREAT_LEVEL_TEXT = {
 	[GlobalTypes.ThreatLevel.UNKNOWN]: '🔄 Идёт анализ...',
 	[GlobalTypes.ThreatLevel.LOW]: '✅ Это сайт, с которым всё в порядке!',
 	[GlobalTypes.ThreatLevel.MEDIUM]: '⚠️ Возможный фишинг. Будьте осторожны!',
-	[GlobalTypes.ThreatLevel.HIGH]: '⚠️ Высокий риск фишинга!',
-	[GlobalTypes.ThreatLevel.CRITICAL]: '🚨 Очень высокая вероятность фишинга!',
+	[GlobalTypes.ThreatLevel.HIGH]: '🚨 Очень высокая вероятность фишинга!',
 };

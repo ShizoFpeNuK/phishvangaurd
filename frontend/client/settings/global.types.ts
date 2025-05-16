@@ -7,6 +7,12 @@ export namespace GlobalTypes {
 		LOW,
 		MEDIUM,
 		HIGH,
-		CRITICAL,
+	}
+
+	export const enum ThreatLevelBounds {
+		UNKNOWN = 0,
+		LOW = 0.5,
+		MEDIUM = 0.8,
+		HIGH = 1,
 	}
 }

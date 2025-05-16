@@ -11,7 +11,6 @@ const dbPromise = openDB<DataBase.PhishingDB>(DataBase.DataBaseNames.PHISHING, 1
 
 const addAnalyze = async (data: DataBase.IUrlDB) => {
 	const db = await dbPromise;
-	console.log('AddAnalyze', data);
 	await db.put(DataBase.DataBaseTables.URLS, data);
 };
 

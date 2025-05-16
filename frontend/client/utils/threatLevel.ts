@@ -1,18 +1,15 @@
 import { GlobalTypes } from '@/settings';
 
 export const getThreatLevel = (riskScore: number): GlobalTypes.ThreatLevel => {
-	if (riskScore === -1) {
+	if (riskScore < GlobalTypes.ThreatLevelBounds.UNKNOWN) {
 		return GlobalTypes.ThreatLevel.UNKNOWN;
 	}
-	if (riskScore < 0.3) {
+	if (riskScore < GlobalTypes.ThreatLevelBounds.LOW) {
 		return GlobalTypes.ThreatLevel.LOW;
 	}
-	if (riskScore < 0.6) {
+	if (riskScore < GlobalTypes.ThreatLevelBounds.MEDIUM) {
 		return GlobalTypes.ThreatLevel.MEDIUM;
 	}
-	if (riskScore < 0.85) {
-		return GlobalTypes.ThreatLevel.HIGH;
-	}
 
-	return GlobalTypes.ThreatLevel.CRITICAL;
+	return GlobalTypes.ThreatLevel.HIGH;
 };

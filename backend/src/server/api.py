@@ -6,7 +6,6 @@ from src.utils.module_loader import load_plugins
 from src.modules.calc_risk import PhishingReport, get_risk
 
 plugins = load_plugins("src/modules")
-
 router = APIRouter()
 
 

@@ -1,18 +1,22 @@
-from typing import TypedDict
+from dataclasses import field
 from pydantic import BaseModel
 
-
-class RiskModulesDict(TypedDict):
-    url_risk: int | float
-    domain_risk: int | float
-    ssl_risk: int | float
+from src.modules.module_url.classes import UrlRisk
+from src.modules.module_visual.classes import VisualRisk
+from src.modules.module_domain.classes import DomainRisk
+from src.modules.module_ssl.classes import SslRisk
 
 
 class PhishingReport(BaseModel):
-    url_risk: float = 0
-    domain_risk: float = 0
-    ssl_risk: float = 0
-    visual_risk: float = 0
+    url: UrlRisk = field(default_factory=UrlRisk)
+    domain: DomainRisk = field(default_factory=DomainRisk)
+    ssl: SslRisk = field(default_factory=SslRisk)
+    visual: VisualRisk = field(default_factory=VisualRisk)
 
     def get_risk_scores(self):
-        return (self.url_risk, self.domain_risk, self.ssl_risk, self.visual_risk)
+        return (
+            self.url.url_risk,
+            self.domain.domain_risk,
+            self.ssl.ssl_risk,
+            self.visual.visual_risk,
+        )

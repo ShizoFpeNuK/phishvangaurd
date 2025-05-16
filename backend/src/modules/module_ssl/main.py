@@ -7,7 +7,11 @@ from urllib.parse import urlparse
 from cryptography.hazmat.backends import default_backend
 
 from src.modules.calc_risk import NUM_IS_PHISHING, PhishingReport
-from src.modules.module_ssl.classes import CertificateDict, FeatureSslDict
+from src.modules.module_ssl.classes import (
+    CertificateDict,
+    FeatureSslDict,
+    SslRisk,
+)
 
 
 def get_certificate(domain: str) -> CertificateDict | None:
@@ -33,7 +37,6 @@ def get_certificate(domain: str) -> CertificateDict | None:
     return cert_info
 
 
-# TODO: Код падает, когда нет сертификата
 def extract_features(url: str) -> FeatureSslDict:
     domain = urlparse(url).netloc
     cert = get_certificate(domain)
@@ -45,42 +48,40 @@ def extract_features(url: str) -> FeatureSslDict:
         ),
         "expired": datetime.now(pytz.utc) > cert["not_after"],
         "short_dated": (cert["not_after"] - cert["not_before"]).days < 30,
-        # Для простоты, считаем DV сертификат простым сертификатом с отсутствием расширений или SAN
         "dv_type": len(cert["extensions"]) == 0,
     }
 
     return features
 
 
-def risk_calculation(features: FeatureSslDict) -> int | float:
-    score = 0.0
+def risk_calculation(features: FeatureSslDict) -> SslRisk:
+    result = SslRisk()
 
     if features["self_signed"]:
-        print("Признак: Самоподписанный сертификат.")
-        return NUM_IS_PHISHING
+        result.ssl_risk = NUM_IS_PHISHING
+        result.features.is_self_signed = True
+
+        return result
+
     if features["domain_mismatch"]:
-        print("Признак: Несовпадение домена и сертификата.")
-        return NUM_IS_PHISHING
-
+        result.ssl_risk += 0.4
+        result.features.is_domain_mismatch = True
     if features["expired"]:
-        score += 0.6
-        print("Признак: Сертификат истёк.")
+        result.ssl_risk += 0.3
+        result.features.is_expired = True
     elif features["short_dated"]:
-        score += 0.4
-        print("Признак: Краткосрочный сертификат.")
-    # Для простоты, считаем DV сертификат простым сертификатом с отсутствием расширений или SAN
+        result.ssl_risk += 0.4
+        result.features.is_short_dated = True
     if features["dv_type"]:
-        print("Признак: DV (Domain Validation) сертификат.")
+        result.ssl_risk += 0.3
+        result.features.is_dv_type = True
 
-    return score
+    return result
 
 
-def analyze(url: str, report: PhishingReport | None = None) -> PhishingReport:
+def analyze(url: str, report: PhishingReport) -> PhishingReport:
     features = extract_features(url)
-    score = risk_calculation(features)
+    result = risk_calculation(features)
 
-    if report is None:
-        return PhishingReport(score)
-    else:
-        report.ssl_risk = score
-        return report
+    report.ssl = result
+    return report

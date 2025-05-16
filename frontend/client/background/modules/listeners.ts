@@ -13,8 +13,16 @@ export const initListeners = async () => {
 
 	const portUrlMap = new Map<chrome.runtime.Port, string>();
 	const contentTabs = new Map<number, boolean>();
+	const analyzingTabs = new Set<number>();
 
 	const analyzeTab = async (tabId: number) => {
+		if (analyzingTabs.has(tabId)) {
+			analyzingTabs.delete(tabId);
+			return;
+		}
+
+		analyzingTabs.add(tabId);
+
 		const tab = await chrome.tabs.get(tabId);
 		const url = tab.url;
 		if (!url || BackgroundUtils.isIgnoredUrl(url)) return;
@@ -31,7 +39,7 @@ export const initListeners = async () => {
 				local: {
 					checked_at: Date.now(),
 					risk_score: probability,
-					report: { url_risk: probability },
+					report: { url: { url_risk: probability } },
 				},
 			};
 
@@ -39,8 +47,15 @@ export const initListeners = async () => {
 
 			for (const [port, storedUrl] of portUrlMap) {
 				if (storedUrl === url) {
-					port.postMessage({ type: 'get-url', body: existingDB });
+					port.postMessage({ type: 'get-url' as ChromeTypes.TMessageType, body: existingDB });
 				}
+			}
+
+			if (contentTabs.get(tabId)) {
+				chrome.tabs.sendMessage(tabId, {
+					type: 'get-url' as ChromeTypes.TMessageType,
+					body: existingDB,
+				});
 			}
 		}
 
@@ -61,25 +76,37 @@ export const initListeners = async () => {
 
 			for (const [port, storedUrl] of portUrlMap) {
 				if (storedUrl === url) {
-					port.postMessage({ type: 'get-url', body: existingDB });
+					port.postMessage({ type: 'get-url' as ChromeTypes.TMessageType, body: existingDB });
 				}
+			}
+
+			if (contentTabs.get(tabId)) {
+				chrome.tabs.sendMessage(tabId, {
+					type: 'get-url' as ChromeTypes.TMessageType,
+					body: existingDB,
+				});
 			}
 		}
 
-		if (contentTabs.get(tabId)) {
-			chrome.tabs.sendMessage(tabId, {
-				type: 'get-url',
-				body: existingDB,
-			});
-		}
+		analyzingTabs.delete(tabId);
+		contentTabs.delete(tabId);
 	};
 
 	chrome.tabs.onActivated.addListener(async ({ tabId }) => {
 		analyzeTab(tabId);
 
-		// Сброс состояния всех остальных вкладок
-		for (const id of contentTabs.keys()) {
-			if (id !== tabId) contentTabs.delete(id);
+		// for (const id of contentTabs.keys()) {
+		// 	if (id !== tabId) contentTabs.delete(id);
+		// }
+	});
+
+	chrome.tabs.onUpdated.addListener(async (tabId, changeInfo) => {
+		if (changeInfo.status === 'loading') {
+			analyzeTab(tabId);
+
+			// for (const id of contentTabs.keys()) {
+			// 	if (id !== tabId) contentTabs.delete(id);
+			// }
 		}
 	});
 
@@ -92,14 +119,11 @@ export const initListeners = async () => {
 				return;
 			}
 
+			portUrlMap.set(port, msg.body.url);
+
 			if (msg.type === 'ui-ready') {
 				const data = await DB.getAnalyzeByUrl(msg.body.url);
-
-				if (!data) {
-					portUrlMap.set(port, msg.body.url);
-				} else {
-					port.postMessage({ type: 'get-url', body: data ?? null });
-				}
+				port.postMessage({ type: 'get-url', body: data });
 			}
 		});
 
@@ -117,19 +141,14 @@ export const initListeners = async () => {
 
 				contentTabs.set(tabId, true);
 
-				DB.getAnalyzeByUrl(url || '').then((data) => {
+				DB.getAnalyzeByUrl(url).then((data) => {
 					if (data) {
 						chrome.tabs.sendMessage(tabId, {
-							type: 'get-url',
+							type: 'get-url' as ChromeTypes.TMessageType,
 							body: data,
 						});
 					}
 				});
-
-				// chrome.tabs.sendMessage(tabId, {
-				// 	type: 'get-url' as ChromeTypes.TMessageType,
-				// 	body: { url },
-				// });
 			}
 		},
 	);

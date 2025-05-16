@@ -5,7 +5,7 @@ from datetime import datetime
 
 from src.utils.parse_date import parse_dirty_date
 from src.modules.calc_risk import PhishingReport
-from src.modules.module_domain.classes import FeatureDomainDict
+from src.modules.module_domain.classes import DomainRisk, FeatureDomainDict
 from src.modules.module_domain.constants import HIDDEN_KEYWORDS
 
 
@@ -27,7 +27,6 @@ def get_age(domain_info: Any) -> datetime:
     return (datetime.now() - creation_date).days
 
 
-# TODO: Переписать под получение списка полей
 def is_info_hidden(field: str | list[str]):
     if field is None:
         return True
@@ -66,17 +65,6 @@ def check_hidden_whois_info(domain_info: Any) -> bool:
     return False
 
 
-# Нет бесплатных
-# def check_reputation(domain: str) -> bool:
-#     try:
-#         response = requests.get(f"https://www.someblacklistapi.com/check/{domain}")
-#         if response.json().get("blacklisted", False):  # Пример ответа API
-#             return True
-#     except requests.RequestException as e:
-#         print(f"Ошибка при запросе репутации для домена {domain}: {e}")
-#     return False
-
-
 def extract_features(url: str) -> FeatureDomainDict:
     domain = urlparse(url).netloc
     domain_info = None
@@ -86,40 +74,36 @@ def extract_features(url: str) -> FeatureDomainDict:
     except Exception as e:
         print(f"Ошибка при получении данных WHOIS для домена {domain}: {e}")
 
-    # Что делать, когда нет такого домена?..
     features: FeatureDomainDict = {
         "age": get_age(domain_info),
         "hidden_whois_info": check_hidden_whois_info(domain_info),
-        # "reputation": check_reputation(domain),
     }
 
     return features
 
 
-def risk_calculation(features: FeatureDomainDict) -> int | float:
+def risk_calculation(features: FeatureDomainDict) -> DomainRisk:
     ONE_MONTH = 30
     THREE_MONTH = 90
-    score = 0.0
+
+    result = DomainRisk()
 
     if features["age"] < ONE_MONTH:
-        print("Признак: Возраст домена меньше месяца.")
-        score += 0.3
+        result.domain_risk += 0.4
+        result.features.is_new = True
     elif features["age"] < THREE_MONTH:
-        print("Признак: Возраст домена меньше 3-х месяцев.")
-        score += 0.2
+        result.domain_risk += 0.3
+        result.features.is_latest = True
     if features["hidden_whois_info"]:
-        print("Признак: Имеется скрытая информация.")
-        score += 0.2
+        result.domain_risk += 0.3
+        result.features.is_hidden_info = True
 
-    return score
+    return result
 
 
-def analyze(url: str, report: PhishingReport | None = None) -> PhishingReport:
+def analyze(url: str, report: PhishingReport) -> PhishingReport:
     features = extract_features(url)
-    score = risk_calculation(features)
+    result = risk_calculation(features)
 
-    if report is None:
-        return PhishingReport(domain_risk=score)
-    else:
-        report.domain_risk = score
-        return report
+    report.domain = result
+    return report

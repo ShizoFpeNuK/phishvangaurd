@@ -18,7 +18,7 @@ def make_screenshot(url: str, output_path: str):
 
     try:
         driver.get(url)
-        time.sleep(2)
+        time.sleep(5)
         driver.save_screenshot(output_path)
         print(f"[+] Сохранено: {output_path}")
     except Exception as e:
@@ -32,9 +32,13 @@ def get_legit_screenshots():
     input_path = os.path.join(base_dir, "../datasets/legitimate.csv")
     output_path = os.path.join(base_dir, "../screenshots/legitimate")
 
-    df = pd.read_csv(input_path, header=None)
+    df = pd.read_csv(input_path, header=None, nrows=100)
 
     for url in df[0]:
-        domain = urlparse(url).netloc
+        full_url = f"https://{url}"
+        domain = urlparse(full_url).netloc
         filename = os.path.join(output_path, f"{domain}.png")
-        make_screenshot(url, filename)
+        make_screenshot(full_url, filename)
+
+
+get_legit_screenshots()

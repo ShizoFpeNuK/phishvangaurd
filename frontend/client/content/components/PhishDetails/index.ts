@@ -1,0 +1,1 @@
+export { PhishDetails } from './PhishDetails';

@@ -2,16 +2,18 @@ import type { FC } from 'react';
 import { useEffect, useState } from 'react';
 import { usePhishingInfo } from '@/content/hooks/usePhishingInfo';
 import { PhishingWarning } from '@/popup/components';
+import { getThreatLevel } from '@/utils';
+import { PhishDetails } from '../PhishDetails';
 
 export const PhishingModal: FC<{ level: string }> = () => {
 	const [isOpen, setIsOpen] = useState<boolean>(false);
-	const [url, threatLevel, serverThreatLevel] = usePhishingInfo();
+	const phishInfo = usePhishingInfo();
 
 	useEffect(() => {
-		if (url) {
+		if (phishInfo?.url) {
 			setIsOpen(true);
 		}
-	}, [url]);
+	}, [phishInfo]);
 
 	return (
 		<>
@@ -23,17 +25,22 @@ export const PhishingModal: FC<{ level: string }> = () => {
 						</div>
 						<div className="modal-content">
 							<p className="url">
-								<strong>URL:</strong> {url}
+								<strong>URL:</strong> {phishInfo?.url}
 							</p>
-							{/* TODO: Изменить */}
 							<div>
-								<strong>Локально:</strong>
-								<PhishingWarning level={threatLevel} />
+								<strong>Клиент:</strong>
+								<PhishingWarning level={getThreatLevel(phishInfo?.local?.risk_score ?? -1)} />
 							</div>
 							<div>
 								<strong>Сервер:</strong>
-								<PhishingWarning level={serverThreatLevel} />
+								<PhishingWarning level={getThreatLevel(phishInfo?.server?.risk_score ?? -1)} />
+								{phishInfo && (
+									<div>
+										<PhishDetails details={phishInfo} />
+									</div>
+								)}
 							</div>
+							<div></div>
 						</div>
 						<div className="modal-footer">
 							<button

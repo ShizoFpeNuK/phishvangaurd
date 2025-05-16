@@ -9,7 +9,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 from skimage.metrics import structural_similarity as ssim
 
 from src.modules.calc_risk import NUM_IS_PHISHING, PhishingReport
-from src.modules.module_visual.classes import FeatureVisualMarkDict
+from src.modules.module_visual.classes import FeatureVisualMarkDict, VisualRisk
 
 
 def make_screenshot(url: str) -> FeatureVisualMarkDict:
@@ -26,7 +26,7 @@ def make_screenshot(url: str) -> FeatureVisualMarkDict:
 
     try:
         driver.get(url)
-        time.sleep(2)
+        time.sleep(5)
         driver.save_screenshot(output_path)
         print(f"[+] Сохранено: {output_path}")
     except Exception as e:
@@ -66,24 +66,22 @@ def extract_features(url: str):
     return features
 
 
-def risk_calculation(features: FeatureVisualMarkDict) -> int | float:
-    score = 0.0
+def risk_calculation(features: FeatureVisualMarkDict) -> VisualRisk:
+    result = VisualRisk()
 
     if features["is_copy"]:
-        print("Признак: Копия легитимного сайта.")
-        return NUM_IS_PHISHING
+        result.visual_risk = NUM_IS_PHISHING
+        result.features.is_copy = True
+        return result
 
-    return score
+    return result
 
 
-def module_visual_mark(url: str, report: PhishingReport | None = None) -> PhishingReport:
+def analyze(url: str, report: PhishingReport) -> PhishingReport:
     make_screenshot(url)
 
     features = extract_features(url)
-    score = risk_calculation(features)
+    result = risk_calculation(features)
 
-    if report is None:
-        return PhishingReport(score)
-    else:
-        report.visual_risk = score
-        return report
+    report.visual = result
+    return report
