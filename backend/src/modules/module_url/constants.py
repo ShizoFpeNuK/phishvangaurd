@@ -1,4 +1,6 @@
-# Подозрительные ключевые слова в URL
+from src.utils.get_path import get_absolute_path
+
+
 SUSPICIOUS_KEYWORDS = [
     "login",
     "verify",
@@ -29,5 +31,5 @@ OBFUSCATION_MAP = {
 }
 
 PHISH_PATH = "src/modules/module_url/datasets/phishing_train.csv"
-LEGIT_DOMAINS_PATH = "src/modules/module_url/datasets/legitimate.csv"
+LEGIT_DOMAINS_PATH = get_absolute_path("src/modules/module_url/datasets/legitimate.csv")
 MODEL_PATH = "src/modules/module_url/model/model.pkl"

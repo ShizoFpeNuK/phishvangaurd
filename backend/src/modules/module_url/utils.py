@@ -6,18 +6,18 @@ from urllib.parse import urlparse
 import pandas as pd
 
 from src.modules.module_url.classes import FeatureUrlDict
-from src.modules.module_url.constants import LEGIT_DOMAINS_PATH, OBFUSCATION_MAP, SUSPICIOUS_KEYWORDS, SUSPICIOUS_TLDS
+from src.modules.module_url.constants import (
+    LEGIT_DOMAINS_PATH,
+    OBFUSCATION_MAP,
+    SUSPICIOUS_KEYWORDS,
+    SUSPICIOUS_TLDS,
+)
 
 
 @lru_cache(maxsize=1)
 def get_legit_domains():
     df = pd.read_csv(LEGIT_DOMAINS_PATH, nrows=100)
     return tuple(df.iloc[:, 0].dropna().unique())
-
-
-# def load_legit_domains(path: str) -> list[str]:
-#     df = pd.read_csv(path, nrows=100)
-#     return df.iloc[:, 0].dropna().unique().tolist()
 
 
 def is_obfuscated_imitation(domain: str, legit_domains: list[str], threshold=0.8) -> bool:

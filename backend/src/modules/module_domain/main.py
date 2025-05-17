@@ -72,7 +72,7 @@ def extract_features(url: str) -> FeatureDomainDict:
     try:
         domain_info = whois.whois(domain)
     except Exception as e:
-        print(f"Ошибка при получении данных WHOIS для домена {domain}: {e}")
+        print(f"[!] Error getting WHOIS data for domain {domain}!")
 
     features: FeatureDomainDict = {
         "age": get_age(domain_info),

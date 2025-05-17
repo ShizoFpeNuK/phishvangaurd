@@ -19,22 +19,19 @@ async def analyze(req: URLRequest):
     report = PhishingReport()
     risk_score = 0
 
-    print(req.url)
+    print(f"[INFO] Start URL analysis: {req.url}...")
 
     for name, plugin in plugins.items():
-        try:
-            report = plugin.analyze(req.url, report)
-            risk_score = get_risk(report)
+        report = plugin.analyze(req.url, report)
+        risk_score = get_risk(report)
 
-            if risk_score > 0.8:
-                return ServerReport(
-                    url=req.url,
-                    risk_score=risk_score,
-                    report=report,
-                    checked_at=int(datetime.now().timestamp() * 1000),
-                )
-        except Exception as e:
-            print(f"[!] Ошибка в плагине {name}: {e}")
+        if risk_score > 0.8:
+            return ServerReport(
+                url=req.url,
+                risk_score=risk_score,
+                report=report,
+                checked_at=int(datetime.now().timestamp() * 1000),
+            )
 
     return ServerReport(
         url=req.url,

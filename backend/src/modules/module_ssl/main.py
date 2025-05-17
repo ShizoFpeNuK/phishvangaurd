@@ -22,7 +22,7 @@ def get_certificate(domain: str) -> CertificateDict | None:
                 der_cert = ssock.getpeercert(binary_form=True)
                 cert = x509.load_der_x509_certificate(der_cert, default_backend())
     except Exception as e:
-        print(f"Ошибка при проверке SSL сертификата: {e}")
+        print(f"[!] Error verifying SSL certificate!")
         return None
 
     cert_info: CertificateDict = {

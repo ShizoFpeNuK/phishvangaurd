@@ -28,9 +28,8 @@ def make_screenshot(url: str) -> FeatureVisualMarkDict:
         driver.get(url)
         time.sleep(5)
         driver.save_screenshot(output_path)
-        print(f"[+] Сохранено: {output_path}")
     except Exception as e:
-        print(f"[!] Ошибка: {url} — {e}")
+        print(f"[!] Error getting screenshot!")
     finally:
         driver.quit()
 
